@@ -61,20 +61,9 @@ function createAddQuoteForm() {
   addButton.textContent = "Add Quote";
   addButton.addEventListener("click", addQuote);
 
-  const exportButton = document.createElement("button");
-  exportButton.textContent = "Export Quotes";
-  exportButton.addEventListener("click", exportToJson);
-
-  const importInput = document.createElement("input");
-  importInput.type = "file";
-  importInput.accept = ".json";
-  importInput.addEventListener("change", importFromJsonFile);
-
   formContainer.appendChild(textInput);
   formContainer.appendChild(categoryInput);
   formContainer.appendChild(addButton);
-  formContainer.appendChild(exportButton);
-  formContainer.appendChild(importInput);
 
   document.body.appendChild(formContainer);
 }
@@ -96,7 +85,8 @@ function addQuote() {
   showRandomQuote();
 }
 
-function exportToJson() {
+function exportToJsonFile() {
+
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
