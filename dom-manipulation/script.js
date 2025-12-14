@@ -1,5 +1,7 @@
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
+const SERVER_URL =
+  "https://jsonplaceholder.typicode.com/posts";
 
 let quotes = [];
 
@@ -147,6 +149,62 @@ function importFromJsonFile(event) {
   reader.readAsText(event.target.files[0]);
 }
 
+function fetchQuotesFromServer() {
+  fetch(SERVER_URL)
+    .then(response => response.json())
+    .then(data => {
+      const serverQuotes = data.slice(0, 5).map(item => {
+        return {
+          text: item.title,
+          category: "Server"
+        };
+      });
+
+      syncWithServer(serverQuotes);
+    })
+    .catch(() => {
+      console.log("Server fetch failed");
+    });
+}
+function syncWithServer(serverQuotes) {
+  let updated = false;
+
+  serverQuotes.forEach(serverQuote => {
+    const exists = quotes.some(
+      localQuote =>
+        localQuote.text === serverQuote.text &&
+        localQuote.category === serverQuote.category
+    );
+
+    if (!exists) {
+      quotes.push(serverQuote);
+      updated = true;
+    }
+  });
+
+  if (updated) {
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    showSyncNotification();
+  }
+}
+function showSyncNotification() {
+  let notice = document.getElementById("syncNotice");
+
+  if (!notice) {
+    notice = document.createElement("div");
+    notice.id = "syncNotice";
+    notice.textContent = "Quotes synced from server.";
+    document.body.appendChild(notice);
+  }
+
+  setTimeout(() => {
+    notice.remove();
+  }, 3000);
+}
+setInterval(fetchQuotesFromServer, 30000);
+
 /* ---------- INIT ---------- */
 
 newQuoteBtn.addEventListener("click", showRandomQuote);
@@ -154,3 +212,4 @@ newQuoteBtn.addEventListener("click", showRandomQuote);
 loadQuotes();
 populateCategories();
 filterQuotes();
+fetchQuotesFromServer();
